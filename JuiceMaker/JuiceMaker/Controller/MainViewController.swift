@@ -6,7 +6,7 @@
 import UIKit
 
 class MainViewController: UIViewController {
-    let store = FruitStore(stockCount: 10)
+    private let store = FruitStore(stockCount: 10)
     private lazy var juiceMaker = JuiceMaker(store: store)
     
     @IBOutlet weak var strawberryBananaOrder: UIButton!
