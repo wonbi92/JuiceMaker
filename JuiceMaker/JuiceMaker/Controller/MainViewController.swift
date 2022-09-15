@@ -27,14 +27,7 @@ class MainViewController: UIViewController {
     }
     
     @IBAction private func tappedModifyBarButton(_ sender: Any) {
-        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: "EditNavigationController") as? UINavigationController else { return }
-        navigationController.modalTransitionStyle = UIModalTransitionStyle.coverVertical
-        navigationController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-        
-        guard let editViewController = navigationController.viewControllers.first as? EditViewController else { return }
-        editViewController.setStore(from: store)
-        
-        present(navigationController, animated: true)
+        presentEditView()
     }
     
     @IBAction private func tappedOrderButton(_ sender: UIButton) {
@@ -62,49 +55,6 @@ class MainViewController: UIViewController {
         checkCanMakeJuice(juice)
     }
     
-    private func checkCanMakeJuice(_ juice: Juice?) {
-        guard let juice = juice else { return }
-        
-        if juiceMaker.makeJuice(juice) {
-            updateStockCount()
-            self.madeJuiceAlert(message: juice.name)
-        } else {
-            self.failedAlert()
-        }
-    }
-    
-    private func madeJuiceAlert(message: String) {
-        let alert = UIAlertController(title: nil,
-                                      message: "\(message) 나왔습니다! 맛있게 드세요!",
-                                      preferredStyle: .alert)
-        let okAction = UIAlertAction(title: Response.comfirm,
-                                     style: .default,
-                                     handler: nil)
-        
-        alert.addAction(okAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func failedAlert() {
-        let alert = UIAlertController(title: nil,
-                                      message: "재료가 모자라요. 재고를 수정할까요?",
-                                      preferredStyle: .alert)
-        let yesAction = UIAlertAction(title: Response.yes,
-                                      style: .default,
-                                      handler: { _ in
-            self.tappedModifyBarButton(())
-        })
-        let noAction = UIAlertAction(title: Response.no,
-                                     style: .destructive,
-                                     handler: nil)
-        
-        alert.addAction(yesAction)
-        alert.addAction(noAction)
-        
-        present(alert, animated: true)
-    }
-    
     private func updateStockCount() {
         var newStock = store.stock
         
@@ -112,5 +62,53 @@ class MainViewController: UIViewController {
             if newStock.isEmpty { return }
             fruitCountLabel.text = String(newStock.removeFirst())
         }
+    }
+    
+    private func presentEditView() {
+        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: "EditNavigationController") as? UINavigationController else { return }
+        navigationController.modalTransitionStyle = UIModalTransitionStyle.coverVertical
+        navigationController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+        
+        guard let editViewController = navigationController.viewControllers.first as? EditViewController else { return }
+        
+        editViewController.setStore(from: store)
+        
+        present(navigationController, animated: true)
+    }
+    
+    private func checkCanMakeJuice(_ juice: Juice?) {
+        guard let juice = juice else { return }
+        
+        if juiceMaker.makeJuice(juice) {
+            updateStockCount()
+            self.resultAlert(isSuccess: true, juiceName: juice.name)
+        } else {
+            self.resultAlert(isSuccess: false)
+        }
+    }
+    
+    private func resultAlert(isSuccess: Bool, juiceName: String = "") {
+        let message = isSuccess ? juiceName + AlertMessage.successMessage : AlertMessage.failureMessage
+        let comfirm = isSuccess ? AlertMessage.successComfirm : AlertMessage.failureComfirm
+        let handler: ((UIAlertAction) -> Void)? = isSuccess ? nil : { _ in self.presentEditView() }
+        
+        let alert = UIAlertController(title: nil,
+                                      message: message,
+                                      preferredStyle: .alert)
+        let comfirmAction = UIAlertAction(title: comfirm,
+                                          style: .default,
+                                          handler: handler)
+        
+        if isSuccess {
+            alert.addAction(comfirmAction)
+        } else {
+            let cencelAction = UIAlertAction(title: AlertMessage.failureCencel,
+                                             style: .cancel,
+                                             handler: nil)
+            alert.addAction(comfirmAction)
+            alert.addAction(cencelAction)
+        }
+        
+        present(alert, animated: true)
     }
 }
