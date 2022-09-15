@@ -39,7 +39,7 @@ class EditViewController: UIViewController {
     }
     
     private func updateStockCount() {
-        guard var newStock = stock else { return }
+        guard var newStock = store?.stock else { return }
         
         for fruitCountLabel in fruitCountLabels {
             if newStock.isEmpty { return }
@@ -53,7 +53,7 @@ class EditViewController: UIViewController {
     }
     
     private func setStepperValue() {
-        guard let stock = stock else { return }
+        guard let stock = store?.stock else { return }
         
         fruitSteppers.forEach { fruitStepper in
             let fruitIndex = fruitStepper.tag

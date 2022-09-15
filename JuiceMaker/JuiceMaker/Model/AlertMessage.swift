@@ -1,8 +1,6 @@
 //
-//  ResponseNameSpace.swift
-//  JuiceMaker
-//
-//  Created by Wonbi on 2022/09/13.
+//  JuiceMaker - AlertMessage.swift
+//  Created by Wonbi, woong
 //
 
 enum AlertMessage {
